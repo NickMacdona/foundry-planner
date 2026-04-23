@@ -1,7 +1,7 @@
-import { Plus, Shield, Spade, Swords } from 'lucide-react'
+import { Plus, Shield, Shovel, Swords } from 'lucide-react'
 import type { IconType } from '../types'
 
-const ORDER: IconType[] = ['shield', 'swords', 'plus', 'spade']
+const ORDER: IconType[] = ['shield', 'swords', 'plus', 'shovel']
 
 type Props = {
   value: IconType
@@ -17,8 +17,8 @@ export function IconGlyph({ type, size = 18 }: { type: IconType; size?: number }
       return <Swords size={size} />
     case 'plus':
       return <Plus size={size} />
-    case 'spade':
-      return <Spade size={size} />
+    case 'shovel':
+      return <Shovel size={size} />
   }
 }
 
