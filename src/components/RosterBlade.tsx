@@ -2,7 +2,6 @@ import { useMemo } from 'react'
 import { useAppStore } from '../store/useAppStore'
 import { RosterItem } from './RosterItem'
 import { RosterTabs } from './RosterTabs'
-import { ExportImportBar } from './ExportImportBar'
 
 export function RosterBlade() {
   const players = useAppStore((s) => s.players)
@@ -23,10 +22,7 @@ export function RosterBlade() {
   return (
     <aside className="h-full flex flex-col border-l border-slate-700 bg-slate-900/60">
       <header className="p-3 border-b border-slate-700 space-y-3">
-        <div className="flex items-center justify-between">
-          <h1 className="text-lg font-semibold text-slate-100">Roster</h1>
-          <ExportImportBar />
-        </div>
+        <h1 className="text-lg font-semibold text-slate-100">Roster</h1>
         <RosterTabs
           active={activeTab}
           onChange={setActiveTab}

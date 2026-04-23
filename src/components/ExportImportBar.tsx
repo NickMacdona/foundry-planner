@@ -51,22 +51,37 @@ export function ExportImportBar() {
     try {
       await navigator.clipboard.writeText(text)
     } catch {
-      // Clipboard can fail on some browsers; leave the text visible for manual copy.
+      // Clipboard can fail in some browsers; text remains visible for manual copy.
     }
   }
 
   return (
     <>
-      <div className="flex gap-1">
-        <IconButton title="Export state" onClick={openExport}>
+      <div className="flex items-center gap-2">
+        <button
+          type="button"
+          onClick={openExport}
+          className="flex items-center gap-2 px-4 py-2 rounded bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-medium"
+        >
           <Download size={16} />
-        </IconButton>
-        <IconButton title="Import state" onClick={openImport}>
+          Export
+        </button>
+        <button
+          type="button"
+          onClick={openImport}
+          className="flex items-center gap-2 px-4 py-2 rounded border border-slate-600 bg-slate-800 hover:bg-slate-700 text-slate-100 text-sm font-medium"
+        >
           <Upload size={16} />
-        </IconButton>
-        <IconButton title="Reset everything" onClick={doClear}>
+          Import
+        </button>
+        <button
+          type="button"
+          title="Reset all state"
+          onClick={doClear}
+          className="w-9 h-9 grid place-items-center rounded text-slate-400 hover:bg-slate-700 hover:text-white"
+        >
           <RotateCcw size={16} />
-        </IconButton>
+        </button>
       </div>
 
       {mode !== null && (
@@ -119,26 +134,5 @@ export function ExportImportBar() {
         </div>
       )}
     </>
-  )
-}
-
-function IconButton({
-  title,
-  onClick,
-  children,
-}: {
-  title: string
-  onClick: () => void
-  children: React.ReactNode
-}) {
-  return (
-    <button
-      type="button"
-      title={title}
-      onClick={onClick}
-      className="w-8 h-8 grid place-items-center rounded text-slate-300 hover:bg-slate-700 hover:text-white"
-    >
-      {children}
-    </button>
   )
 }
