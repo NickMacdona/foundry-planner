@@ -7,6 +7,7 @@ import {
   type DragEndEvent,
   type DragStartEvent,
 } from '@dnd-kit/core'
+import { snapCenterToCursor } from '@dnd-kit/modifiers'
 import { PanelRightOpen } from 'lucide-react'
 import { useCallback, useRef, useState } from 'react'
 import { BottomToolbar } from './components/BottomToolbar'
@@ -139,7 +140,7 @@ export default function App() {
         </div>
       </div>
 
-      <DragOverlay dropAnimation={null}>
+      <DragOverlay dropAnimation={null} modifiers={[snapCenterToCursor]}>
         {activeDrag ? <DragPreview active={activeDrag} /> : null}
       </DragOverlay>
     </DndContext>
