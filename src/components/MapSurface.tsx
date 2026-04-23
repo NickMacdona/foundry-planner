@@ -68,8 +68,9 @@ export const MapSurface = forwardRef<MapSurfaceHandle>(function MapSurface(
           initialScale={0.8}
           centerOnInit
           limitToBounds={false}
+          smooth={false}
           doubleClick={{ disabled: true }}
-          wheel={{ step: 0.012 }}
+          wheel={{ step: 0.1 }}
           panning={{
             excluded: ['dnd-handle', 'annotation-hit'],
             velocityDisabled: true,
