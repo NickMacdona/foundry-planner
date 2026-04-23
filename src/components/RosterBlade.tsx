@@ -1,6 +1,5 @@
 import { useMemo } from 'react'
 import { useAppStore } from '../store/useAppStore'
-import { SUB_CAP } from '../types'
 import { RosterItem } from './RosterItem'
 import { RosterTabs } from './RosterTabs'
 import { ExportImportBar } from './ExportImportBar'
@@ -18,7 +17,6 @@ export function RosterBlade() {
 
   const joinCount = players.filter((p) => p.mode === 'join').length
   const subCount = players.filter((p) => p.mode === 'sub').length
-  const canMoveToSub = subCount < SUB_CAP
 
   const visible = players.filter((p) => p.mode === activeTab)
 
@@ -38,22 +36,13 @@ export function RosterBlade() {
       </header>
 
       <div className="flex-1 overflow-y-auto p-2 space-y-1.5">
-        {visible.length === 0 ? (
-          <p className="text-center text-sm text-slate-500 py-8 px-4">
-            {activeTab === 'sub'
-              ? 'No subs yet. Click the swap icon on a row in Join to move a player to Sub (max 20).'
-              : 'Everyone has been moved to Sub.'}
-          </p>
-        ) : (
-          visible.map((p) => (
-            <RosterItem
-              key={p.id}
-              player={p}
-              placedOnMap={placedIds.has(p.id)}
-              canMoveToSub={canMoveToSub}
-            />
-          ))
-        )}
+        {visible.map((p) => (
+          <RosterItem
+            key={p.id}
+            player={p}
+            placedOnMap={placedIds.has(p.id)}
+          />
+        ))}
       </div>
     </aside>
   )

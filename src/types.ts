@@ -1,4 +1,4 @@
-export type IconType = 'shield' | 'swords' | 'plus'
+export type IconType = 'shield' | 'swords' | 'plus' | 'spade'
 export type RosterMode = 'join' | 'sub'
 
 export type Player = {

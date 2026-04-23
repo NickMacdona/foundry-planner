@@ -1,21 +1,18 @@
 import { useDraggable } from '@dnd-kit/core'
-import { ArrowLeftRight, GripVertical, MapPin } from 'lucide-react'
+import { GripVertical, MapPin } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import type { Player } from '../types'
-import { SUB_CAP } from '../types'
 import { useAppStore } from '../store/useAppStore'
 import { IconPicker } from './IconPicker'
 
 type Props = {
   player: Player
   placedOnMap: boolean
-  canMoveToSub: boolean
 }
 
-export function RosterItem({ player, placedOnMap, canMoveToSub }: Props) {
+export function RosterItem({ player, placedOnMap }: Props) {
   const renamePlayer = useAppStore((s) => s.renamePlayer)
   const setIcon = useAppStore((s) => s.setIcon)
-  const cycleMode = useAppStore((s) => s.cycleMode)
   const [editing, setEditing] = useState(false)
   const [draft, setDraft] = useState(player.name)
   const inputRef = useRef<HTMLInputElement>(null)
@@ -37,15 +34,6 @@ export function RosterItem({ player, placedOnMap, canMoveToSub }: Props) {
     if (next !== player.name) renamePlayer(player.id, next)
     setEditing(false)
   }
-
-  const toggleMode = () => {
-    const ok = cycleMode(player.id)
-    if (!ok) {
-      alert(`Sub roster is full (max ${SUB_CAP}).`)
-    }
-  }
-
-  const moveDisabled = player.mode === 'join' && !canMoveToSub
 
   return (
     <div
@@ -108,27 +96,6 @@ export function RosterItem({ player, placedOnMap, canMoveToSub }: Props) {
           <MapPin size={14} />
         </span>
       )}
-
-      <button
-        type="button"
-        onClick={toggleMode}
-        disabled={moveDisabled}
-        title={
-          moveDisabled
-            ? `Sub roster is full (${SUB_CAP})`
-            : player.mode === 'join'
-              ? 'Move to Sub'
-              : 'Move to Join'
-        }
-        className={
-          'shrink-0 w-7 h-7 grid place-items-center rounded ' +
-          (moveDisabled
-            ? 'text-slate-600 cursor-not-allowed'
-            : 'text-slate-300 hover:bg-slate-700')
-        }
-      >
-        <ArrowLeftRight size={14} />
-      </button>
     </div>
   )
 }
