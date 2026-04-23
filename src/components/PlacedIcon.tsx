@@ -8,33 +8,26 @@ type Props = {
   player: Player
   x: number
   y: number
-  scale: number
 }
 
-export function PlacedIcon({ player, x, y, scale }: Props) {
+export function PlacedIcon({ player, x, y }: Props) {
   const removePlacement = useAppStore((s) => s.removePlacement)
 
-  const { attributes, listeners, setNodeRef, transform, isDragging } =
-    useDraggable({
-      id: `placed-${player.id}`,
-      data: { kind: 'placed', playerId: player.id },
-    })
-
-  // dnd-kit transform is in screen-space px; the map is transformed, so divide by scale.
-  const dragOffset = transform
-    ? { x: transform.x / scale, y: transform.y / scale }
-    : { x: 0, y: 0 }
+  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
+    id: `placed-${player.id}`,
+    data: { kind: 'placed', playerId: player.id },
+  })
 
   return (
     <div
       ref={setNodeRef}
       className="dnd-handle absolute flex flex-col items-center select-none"
       style={{
-        left: x + dragOffset.x,
-        top: y + dragOffset.y,
+        left: x,
+        top: y,
         transform: 'translate(-50%, -50%)',
         zIndex: isDragging ? 20 : 10,
-        opacity: isDragging ? 0.7 : 1,
+        opacity: isDragging ? 0.3 : 1,
       }}
     >
       <div

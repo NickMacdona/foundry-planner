@@ -1,12 +1,15 @@
 import {
   DndContext,
+  DragOverlay,
   PointerSensor,
   useSensor,
   useSensors,
   type DragEndEvent,
+  type DragStartEvent,
 } from '@dnd-kit/core'
 import { useCallback, useRef, useState } from 'react'
 import { BottomToolbar } from './components/BottomToolbar'
+import { DragPreview, type ActiveDrag } from './components/DragPreview'
 import { MapSurface, type MapSurfaceHandle } from './components/MapSurface'
 import { RosterBlade } from './components/RosterBlade'
 import { clampToMap, snap, screenToMap } from './lib/grid'
@@ -18,6 +21,7 @@ export default function App() {
   const [selectedAnnotationId, setSelectedAnnotationId] = useState<string | null>(
     null,
   )
+  const [activeDrag, setActiveDrag] = useState<ActiveDrag | null>(null)
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
@@ -27,8 +31,14 @@ export default function App() {
   const movePlacement = useAppStore((s) => s.movePlacement)
   const addAnnotation = useAppStore((s) => s.addAnnotation)
 
+  const onDragStart = useCallback((event: DragStartEvent) => {
+    const data = event.active.data.current as ActiveDrag | undefined
+    if (data) setActiveDrag(data)
+  }, [])
+
   const onDragEnd = useCallback(
     (event: DragEndEvent) => {
+      setActiveDrag(null)
       const { active, delta, activatorEvent } = event
       const data = active.data.current as
         | { kind: 'roster'; playerId: string }
@@ -80,8 +90,15 @@ export default function App() {
     [addAnnotation, movePlacement, placePlayer],
   )
 
+  const onDragCancel = useCallback(() => setActiveDrag(null), [])
+
   return (
-    <DndContext sensors={sensors} onDragEnd={onDragEnd}>
+    <DndContext
+      sensors={sensors}
+      onDragStart={onDragStart}
+      onDragEnd={onDragEnd}
+      onDragCancel={onDragCancel}
+    >
       <div
         className="h-full w-full grid"
         style={{
@@ -104,6 +121,10 @@ export default function App() {
           <RosterBlade />
         </div>
       </div>
+
+      <DragOverlay dropAnimation={null}>
+        {activeDrag ? <DragPreview active={activeDrag} /> : null}
+      </DragOverlay>
     </DndContext>
   )
 }

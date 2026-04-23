@@ -96,13 +96,7 @@ export const MapSurface = forwardRef<MapSurfaceHandle, MapSurfaceProps>(
                 const p = playersById.get(pl.playerId)
                 if (!p) return null
                 return (
-                  <PlacedIcon
-                    key={pl.playerId}
-                    player={p}
-                    x={pl.x}
-                    y={pl.y}
-                    scale={rzppRef.current?.state?.scale ?? 1}
-                  />
+                  <PlacedIcon key={pl.playerId} player={p} x={pl.x} y={pl.y} />
                 )
               })}
             </div>
