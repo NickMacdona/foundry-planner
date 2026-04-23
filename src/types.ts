@@ -36,6 +36,7 @@ export const ANNOTATION_COLORS: string[] = [
   '#ec4899', // pink
   '#22d3ee', // cyan
   '#f1f5f9', // white
+  '#000000', // black
 ]
 
 export const DEFAULT_ANNOTATION_COLOR = ANNOTATION_COLORS[0]
@@ -45,6 +46,7 @@ export type AppState = {
   placements: Placement[]
   annotations: Annotation[]
   activeTab: RosterMode
+  currentColor: string
 }
 
 export const SUB_CAP = 20

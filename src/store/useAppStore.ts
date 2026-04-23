@@ -40,6 +40,7 @@ type Actions = {
   renamePlayer: (id: string, name: string) => void
   setIcon: (id: string, icon: IconType) => void
   setActiveTab: (tab: RosterMode) => void
+  setCurrentColor: (color: string) => void
 
   placePlayer: (playerId: string, x: number, y: number) => void
   movePlacement: (playerId: string, x: number, y: number) => void
@@ -58,6 +59,7 @@ const initialState: AppState = {
   placements: [],
   annotations: [],
   activeTab: 'join',
+  currentColor: DEFAULT_ANNOTATION_COLOR,
 }
 
 export const useAppStore = create<AppState & Actions>()(
@@ -80,6 +82,8 @@ export const useAppStore = create<AppState & Actions>()(
         }),
 
       setActiveTab: (tab) => set({ activeTab: tab }),
+
+      setCurrentColor: (color) => set({ currentColor: color }),
 
       placePlayer: (playerId, x, y) => {
         const existing = get().placements.find((p) => p.playerId === playerId)
@@ -125,7 +129,7 @@ export const useAppStore = create<AppState & Actions>()(
           w: d.w,
           h: d.h,
           text: d.text,
-          color: DEFAULT_ANNOTATION_COLOR,
+          color: get().currentColor,
         }
         set({ annotations: [...get().annotations, ann] })
         return id
@@ -147,6 +151,7 @@ export const useAppStore = create<AppState & Actions>()(
           placements: s.placements,
           annotations: s.annotations,
           activeTab: s.activeTab,
+          currentColor: s.currentColor ?? DEFAULT_ANNOTATION_COLOR,
         }),
 
       reset: () => set({ ...initialState, players: seedAllPlayers() }),
@@ -159,6 +164,7 @@ export const useAppStore = create<AppState & Actions>()(
         placements: s.placements,
         annotations: s.annotations,
         activeTab: s.activeTab,
+        currentColor: s.currentColor,
       }),
       migrate: (persisted, fromVersion) => {
         // v1: only 30 join players; no dedicated sub placeholders.
@@ -179,6 +185,10 @@ export const useAppStore = create<AppState & Actions>()(
             placements: Array.isArray(s.placements) ? s.placements : [],
             annotations: Array.isArray(s.annotations) ? s.annotations : [],
             activeTab: s.activeTab === 'sub' ? 'sub' : 'join',
+            currentColor:
+              typeof s.currentColor === 'string'
+                ? s.currentColor
+                : DEFAULT_ANNOTATION_COLOR,
           }
         }
         return persisted

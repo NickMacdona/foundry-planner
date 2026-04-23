@@ -18,6 +18,7 @@ export function ExportImportBar() {
         placements: state.placements,
         annotations: state.annotations,
         activeTab: state.activeTab,
+        currentColor: state.currentColor,
       }),
     )
     setError(null)

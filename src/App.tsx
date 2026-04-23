@@ -5,7 +5,7 @@ import {
   useSensors,
   type DragEndEvent,
 } from '@dnd-kit/core'
-import { useCallback, useRef } from 'react'
+import { useCallback, useRef, useState } from 'react'
 import { BottomToolbar } from './components/BottomToolbar'
 import { MapSurface, type MapSurfaceHandle } from './components/MapSurface'
 import { RosterBlade } from './components/RosterBlade'
@@ -15,6 +15,9 @@ import type { AnnotationType } from './types'
 
 export default function App() {
   const mapRef = useRef<MapSurfaceHandle>(null)
+  const [selectedAnnotationId, setSelectedAnnotationId] = useState<string | null>(
+    null,
+  )
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
@@ -88,10 +91,14 @@ export default function App() {
         }}
       >
         <div style={{ gridArea: 'map' }} className="min-h-0 min-w-0">
-          <MapSurface ref={mapRef} />
+          <MapSurface
+            ref={mapRef}
+            selectedAnnotationId={selectedAnnotationId}
+            onSelectAnnotation={setSelectedAnnotationId}
+          />
         </div>
         <div style={{ gridArea: 'bottom' }} className="min-h-0 min-w-0">
-          <BottomToolbar />
+          <BottomToolbar selectedAnnotationId={selectedAnnotationId} />
         </div>
         <div style={{ gridArea: 'blade' }} className="min-h-0 min-w-0">
           <RosterBlade />

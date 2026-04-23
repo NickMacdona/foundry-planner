@@ -2,8 +2,13 @@ import { useDraggable } from '@dnd-kit/core'
 import { ArrowRight, Circle, Square, Type } from 'lucide-react'
 import type { AnnotationType } from '../types'
 import type { ReactNode } from 'react'
+import { AnnotationColorPicker } from './AnnotationColorPicker'
 
-export function BottomToolbar() {
+type Props = {
+  selectedAnnotationId: string | null
+}
+
+export function BottomToolbar({ selectedAnnotationId }: Props) {
   return (
     <div className="h-full border-t border-slate-700 bg-slate-900/80 flex items-center gap-3 px-4">
       <span className="text-sm text-slate-400 pr-2 border-r border-slate-700">
@@ -13,7 +18,12 @@ export function BottomToolbar() {
       <ToolTile type="box" label="Box" icon={<Square size={18} />} />
       <ToolTile type="circle" label="Circle" icon={<Circle size={18} />} />
       <ToolTile type="text" label="Text" icon={<Type size={18} />} />
-      <span className="ml-auto text-xs text-slate-500">
+
+      <div className="ml-4 pl-4 border-l border-slate-700">
+        <AnnotationColorPicker selectedId={selectedAnnotationId} />
+      </div>
+
+      <span className="ml-auto text-xs text-slate-500 hidden lg:inline">
         Drag onto map · Click to select · Delete to remove · Double-click text to edit
       </span>
     </div>
