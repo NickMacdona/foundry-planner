@@ -35,31 +35,33 @@ export function RosterItem({ player, placedOnMap }: Props) {
     setEditing(false)
   }
 
+  // While editing, suppress drag listeners so text selection / caret work.
+  const dragProps = editing ? {} : { ...listeners, ...attributes }
+
   return (
     <div
       ref={setNodeRef}
+      {...dragProps}
       className={
-        'flex items-center gap-2 px-2 py-1.5 rounded border ' +
+        'flex items-center gap-2 px-2 py-1.5 rounded border select-none ' +
         (placedOnMap
           ? 'border-indigo-500/60 bg-slate-800/60'
           : 'border-slate-700 bg-slate-800/30') +
+        (editing ? ' cursor-text' : ' cursor-grab active:cursor-grabbing') +
         (isDragging ? ' opacity-40' : '')
       }
+      title={editing ? undefined : 'Drag to map'}
     >
-      <button
-        type="button"
-        className="dnd-handle cursor-grab active:cursor-grabbing text-slate-400 hover:text-slate-200 shrink-0"
-        title="Drag to map"
-        {...listeners}
-        {...attributes}
-      >
+      <span className="text-slate-500 shrink-0">
         <GripVertical size={16} />
-      </button>
+      </span>
 
-      <IconPicker
-        value={player.icon}
-        onChange={(next) => setIcon(player.id, next)}
-      />
+      <div onPointerDown={(e) => e.stopPropagation()}>
+        <IconPicker
+          value={player.icon}
+          onChange={(next) => setIcon(player.id, next)}
+        />
+      </div>
 
       {editing ? (
         <input
@@ -67,6 +69,7 @@ export function RosterItem({ player, placedOnMap }: Props) {
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
           onBlur={commitName}
+          onPointerDown={(e) => e.stopPropagation()}
           onKeyDown={(e) => {
             if (e.key === 'Enter') commitName()
             if (e.key === 'Escape') {
@@ -80,7 +83,8 @@ export function RosterItem({ player, placedOnMap }: Props) {
       ) : (
         <button
           type="button"
-          onClick={() => {
+          onClick={(e) => {
+            e.stopPropagation()
             setDraft(player.name)
             setEditing(true)
           }}
