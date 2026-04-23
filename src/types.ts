@@ -24,7 +24,21 @@ export type Annotation = {
   w: number
   h: number
   text?: string
+  color?: string
 }
+
+export const ANNOTATION_COLORS: string[] = [
+  '#fbbf24', // amber
+  '#ef4444', // red
+  '#22c55e', // green
+  '#3b82f6', // blue
+  '#a855f7', // purple
+  '#ec4899', // pink
+  '#22d3ee', // cyan
+  '#f1f5f9', // white
+]
+
+export const DEFAULT_ANNOTATION_COLOR = ANNOTATION_COLORS[0]
 
 export type AppState = {
   players: Player[]

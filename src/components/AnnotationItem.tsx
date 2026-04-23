@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import type { Annotation } from '../types'
+import { DEFAULT_ANNOTATION_COLOR } from '../types'
 import { useAppStore } from '../store/useAppStore'
 import { useMapContext } from './MapContext'
 import { clampToMap } from '../lib/grid'
@@ -104,6 +105,7 @@ export function AnnotationItem({ annotation, selected, onSelect }: Props) {
     }
 
   const { x, y, w, h } = annotation
+  const color = annotation.color ?? DEFAULT_ANNOTATION_COLOR
 
   let body: React.ReactNode = null
   switch (annotation.type) {
@@ -115,8 +117,9 @@ export function AnnotationItem({ annotation, selected, onSelect }: Props) {
           y={y}
           width={Math.max(4, w)}
           height={Math.max(4, h)}
-          fill="rgba(251, 191, 36, 0.12)"
-          stroke="#fbbf24"
+          fill={color}
+          fillOpacity={0.12}
+          stroke={color}
           strokeWidth={2}
           onPointerDown={startMove}
           style={{ cursor: 'move' }}
@@ -131,8 +134,9 @@ export function AnnotationItem({ annotation, selected, onSelect }: Props) {
           cy={y + h / 2}
           rx={Math.max(2, Math.abs(w / 2))}
           ry={Math.max(2, Math.abs(h / 2))}
-          fill="rgba(251, 191, 36, 0.12)"
-          stroke="#fbbf24"
+          fill={color}
+          fillOpacity={0.12}
+          stroke={color}
           strokeWidth={2}
           onPointerDown={startMove}
           style={{ cursor: 'move' }}
@@ -148,7 +152,7 @@ export function AnnotationItem({ annotation, selected, onSelect }: Props) {
             y1={y}
             x2={x + w}
             y2={y + h}
-            stroke="#fbbf24"
+            stroke={color}
             strokeWidth={3}
             markerEnd="url(#arrowhead)"
             onPointerDown={startMove}
@@ -199,8 +203,13 @@ export function AnnotationItem({ annotation, selected, onSelect }: Props) {
           style={{ cursor: 'move' }}
         >
           <div
-            className="w-full h-full px-2 py-1 rounded border border-amber-400 bg-amber-400/10 text-amber-200 text-sm font-medium overflow-hidden"
-            style={{ wordBreak: 'break-word' }}
+            className="w-full h-full px-2 py-1 rounded border text-sm font-medium overflow-hidden"
+            style={{
+              wordBreak: 'break-word',
+              borderColor: color,
+              color: color,
+              backgroundColor: `${color}1f`,
+            }}
           >
             {annotation.text || 'Text'}
           </div>

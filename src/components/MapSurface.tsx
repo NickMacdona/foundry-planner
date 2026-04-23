@@ -1,5 +1,5 @@
 import { useDroppable } from '@dnd-kit/core'
-import { forwardRef, useImperativeHandle, useMemo, useRef } from 'react'
+import { forwardRef, useImperativeHandle, useMemo, useRef, useState } from 'react'
 import {
   TransformComponent,
   TransformWrapper,
@@ -10,6 +10,7 @@ import { useAppStore } from '../store/useAppStore'
 import { MapGrid } from './MapGrid'
 import { PlacedIcon } from './PlacedIcon'
 import { AnnotationLayer } from './AnnotationLayer'
+import { AnnotationColorPicker } from './AnnotationColorPicker'
 import { MapProvider } from './MapContext'
 
 export type MapSurfaceHandle = {
@@ -23,6 +24,9 @@ export const MapSurface = forwardRef<MapSurfaceHandle>(function MapSurface(
 ) {
   const wrapperRef = useRef<HTMLDivElement>(null)
   const rzppRef = useRef<ReactZoomPanPinchRef>(null)
+  const [selectedAnnotationId, setSelectedAnnotationId] = useState<string | null>(
+    null,
+  )
 
   const players = useAppStore((s) => s.players)
   const placements = useAppStore((s) => s.placements)
@@ -85,7 +89,10 @@ export const MapSurface = forwardRef<MapSurfaceHandle>(function MapSurface(
               style={{ width: MAP_WIDTH, height: MAP_HEIGHT }}
             >
               <MapGrid />
-              <AnnotationLayer />
+              <AnnotationLayer
+                selectedId={selectedAnnotationId}
+                onSelect={setSelectedAnnotationId}
+              />
               {placements.map((pl) => {
                 const p = playersById.get(pl.playerId)
                 if (!p) return null
@@ -102,6 +109,8 @@ export const MapSurface = forwardRef<MapSurfaceHandle>(function MapSurface(
             </div>
           </TransformComponent>
         </TransformWrapper>
+
+        <AnnotationColorPicker selectedId={selectedAnnotationId} />
 
         <div className="absolute bottom-2 left-2 z-30 text-xs text-slate-400 bg-slate-900/80 border border-slate-700 rounded px-2 py-1">
           Scroll to zoom · Drag background to pan · Drag icons to move

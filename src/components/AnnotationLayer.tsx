@@ -1,12 +1,16 @@
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { useAppStore } from '../store/useAppStore'
 import { AnnotationItem } from './AnnotationItem'
 import { MAP_HEIGHT, MAP_WIDTH } from '../types'
 
-export function AnnotationLayer() {
+type Props = {
+  selectedId: string | null
+  onSelect: (id: string | null) => void
+}
+
+export function AnnotationLayer({ selectedId, onSelect }: Props) {
   const annotations = useAppStore((s) => s.annotations)
   const removeAnnotation = useAppStore((s) => s.removeAnnotation)
-  const [selectedId, setSelectedId] = useState<string | null>(null)
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -23,13 +27,13 @@ export function AnnotationLayer() {
       if (e.key === 'Delete' || e.key === 'Backspace') {
         e.preventDefault()
         removeAnnotation(selectedId)
-        setSelectedId(null)
+        onSelect(null)
       }
-      if (e.key === 'Escape') setSelectedId(null)
+      if (e.key === 'Escape') onSelect(null)
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [selectedId, removeAnnotation])
+  }, [selectedId, removeAnnotation, onSelect])
 
   return (
     <svg
@@ -39,7 +43,7 @@ export function AnnotationLayer() {
       style={{ overflow: 'visible' }}
       onPointerDown={(e) => {
         // clicks on background deselect; individual annotations stopPropagation
-        if (e.target === e.currentTarget) setSelectedId(null)
+        if (e.target === e.currentTarget) onSelect(null)
       }}
     >
       <defs>
@@ -52,7 +56,8 @@ export function AnnotationLayer() {
           markerHeight="8"
           orient="auto-start-reverse"
         >
-          <path d="M 0 0 L 10 5 L 0 10 z" fill="#fbbf24" />
+          {/* context-stroke makes the arrowhead inherit the referring line's stroke color */}
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="context-stroke" />
         </marker>
       </defs>
       {annotations.map((a) => (
@@ -60,7 +65,7 @@ export function AnnotationLayer() {
           key={a.id}
           annotation={a}
           selected={selectedId === a.id}
-          onSelect={() => setSelectedId(a.id)}
+          onSelect={() => onSelect(a.id)}
         />
       ))}
     </svg>

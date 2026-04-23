@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import {
+  DEFAULT_ANNOTATION_COLOR,
   ROSTER_SIZE,
   SUB_CAP,
   type Annotation,
@@ -116,7 +117,16 @@ export const useAppStore = create<AppState & Actions>()(
           text: { w: 180, h: 48, text: 'Text' },
         }
         const d = defaults[type]
-        const ann: Annotation = { id, type, x, y, w: d.w, h: d.h, text: d.text }
+        const ann: Annotation = {
+          id,
+          type,
+          x,
+          y,
+          w: d.w,
+          h: d.h,
+          text: d.text,
+          color: DEFAULT_ANNOTATION_COLOR,
+        }
         set({ annotations: [...get().annotations, ann] })
         return id
       },
