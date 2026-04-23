@@ -13,8 +13,10 @@ import { useCallback, useRef, useState } from 'react'
 import { BottomToolbar } from './components/BottomToolbar'
 import { DragPreview, type ActiveDrag } from './components/DragPreview'
 import { MapSurface, type MapSurfaceHandle } from './components/MapSurface'
+import { MobilePanel } from './components/MobilePanel'
 import { RosterBlade } from './components/RosterBlade'
 import { clampToMap, snap, screenToMap } from './lib/grid'
+import { useIsMobile } from './lib/useIsMobile'
 import { useAppStore } from './store/useAppStore'
 import type { AnnotationType } from './types'
 
@@ -27,6 +29,7 @@ export default function App() {
   const [bladeOpen, setBladeOpen] = useState(
     () => typeof window === 'undefined' || window.innerWidth >= 768,
   )
+  const isMobile = useIsMobile()
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
@@ -104,41 +107,63 @@ export default function App() {
       onDragEnd={onDragEnd}
       onDragCancel={onDragCancel}
     >
-      <div
-        className="h-full w-full grid transition-[grid-template-columns] duration-200"
-        style={{
-          gridTemplateColumns: bladeOpen ? '1fr 340px' : '1fr 0px',
-          gridTemplateRows: '1fr 72px',
-          gridTemplateAreas: '"map blade" "bottom blade"',
-        }}
-      >
-        <div style={{ gridArea: 'map' }} className="min-h-0 min-w-0 relative">
-          <MapSurface
-            ref={mapRef}
-            selectedAnnotationId={selectedAnnotationId}
-            onSelectAnnotation={setSelectedAnnotationId}
-          />
-          {!bladeOpen && (
-            <button
-              type="button"
-              onClick={() => setBladeOpen(true)}
-              title="Show roster"
-              className="absolute top-3 right-3 z-30 w-10 h-10 grid place-items-center rounded-lg bg-slate-900/90 border border-slate-700 text-slate-100 shadow-lg hover:bg-slate-800"
-            >
-              <PanelRightOpen size={18} />
-            </button>
-          )}
-        </div>
-        <div style={{ gridArea: 'bottom' }} className="min-h-0 min-w-0">
-          <BottomToolbar selectedAnnotationId={selectedAnnotationId} />
-        </div>
+      {isMobile ? (
         <div
-          style={{ gridArea: 'blade' }}
-          className="min-h-0 min-w-0 overflow-hidden"
+          className="h-full w-full grid"
+          style={{
+            gridTemplateColumns: '1fr',
+            gridTemplateRows: '1fr 33vh',
+            gridTemplateAreas: '"map" "panel"',
+          }}
         >
-          <RosterBlade onCollapse={() => setBladeOpen(false)} />
+          <div style={{ gridArea: 'map' }} className="min-h-0 min-w-0 relative">
+            <MapSurface
+              ref={mapRef}
+              selectedAnnotationId={selectedAnnotationId}
+              onSelectAnnotation={setSelectedAnnotationId}
+            />
+          </div>
+          <div style={{ gridArea: 'panel' }} className="min-h-0 min-w-0">
+            <MobilePanel selectedAnnotationId={selectedAnnotationId} />
+          </div>
         </div>
-      </div>
+      ) : (
+        <div
+          className="h-full w-full grid transition-[grid-template-columns] duration-200"
+          style={{
+            gridTemplateColumns: bladeOpen ? '1fr 340px' : '1fr 0px',
+            gridTemplateRows: '1fr 72px',
+            gridTemplateAreas: '"map blade" "bottom blade"',
+          }}
+        >
+          <div style={{ gridArea: 'map' }} className="min-h-0 min-w-0 relative">
+            <MapSurface
+              ref={mapRef}
+              selectedAnnotationId={selectedAnnotationId}
+              onSelectAnnotation={setSelectedAnnotationId}
+            />
+            {!bladeOpen && (
+              <button
+                type="button"
+                onClick={() => setBladeOpen(true)}
+                title="Show roster"
+                className="absolute top-3 right-3 z-30 w-10 h-10 grid place-items-center rounded-lg bg-slate-900/90 border border-slate-700 text-slate-100 shadow-lg hover:bg-slate-800"
+              >
+                <PanelRightOpen size={18} />
+              </button>
+            )}
+          </div>
+          <div style={{ gridArea: 'bottom' }} className="min-h-0 min-w-0">
+            <BottomToolbar selectedAnnotationId={selectedAnnotationId} />
+          </div>
+          <div
+            style={{ gridArea: 'blade' }}
+            className="min-h-0 min-w-0 overflow-hidden"
+          >
+            <RosterBlade onCollapse={() => setBladeOpen(false)} />
+          </div>
+        </div>
+      )}
 
       <DragOverlay dropAnimation={null} modifiers={[snapCenterToCursor]}>
         {activeDrag ? <DragPreview active={activeDrag} /> : null}
