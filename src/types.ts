@@ -38,4 +38,4 @@ export const ROSTER_SIZE = 30
 export const GRID_SIZE = 40
 export const MAP_WIDTH = 1600
 export const MAP_HEIGHT = 1280
-export const MAP_IMAGE_URL = '/foundry-map.webp'
+export const MAP_IMAGE_URL = `${import.meta.env.BASE_URL}foundry-map.webp`
