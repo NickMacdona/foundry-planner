@@ -50,6 +50,7 @@ type Actions = {
   updateAnnotation: (id: string, patch: Partial<Annotation>) => void
   removeAnnotation: (id: string) => void
 
+  importPlayerNames: (mode: RosterMode, names: string[]) => void
   replaceState: (s: AppState) => void
   reset: () => void
 }
@@ -144,6 +145,19 @@ export const useAppStore = create<AppState & Actions>()(
 
       removeAnnotation: (id) =>
         set({ annotations: get().annotations.filter((a) => a.id !== id) }),
+
+      importPlayerNames: (mode, names) => {
+        const slots = get().players.filter((p) => p.mode === mode)
+        const updates = new Map<string, string>()
+        for (let i = 0; i < Math.min(names.length, slots.length); i++) {
+          updates.set(slots[i].id, names[i])
+        }
+        set({
+          players: get().players.map((p) =>
+            updates.has(p.id) ? { ...p, name: updates.get(p.id)! } : p,
+          ),
+        })
+      },
 
       replaceState: (s) =>
         set({

@@ -1,6 +1,7 @@
-import { PanelRightClose } from 'lucide-react'
-import { useMemo } from 'react'
+import { ClipboardPaste, PanelRightClose } from 'lucide-react'
+import { useMemo, useState } from 'react'
 import { useAppStore } from '../store/useAppStore'
+import { ImportNamesModal } from './ImportNamesModal'
 import { RosterItem } from './RosterItem'
 import { RosterTabs } from './RosterTabs'
 
@@ -13,6 +14,7 @@ export function RosterBlade({ onCollapse }: Props) {
   const placements = useAppStore((s) => s.placements)
   const activeTab = useAppStore((s) => s.activeTab)
   const setActiveTab = useAppStore((s) => s.setActiveTab)
+  const [importOpen, setImportOpen] = useState(false)
 
   const placedIds = useMemo(
     () => new Set(placements.map((p) => p.playerId)),
@@ -29,14 +31,24 @@ export function RosterBlade({ onCollapse }: Props) {
       <header className="p-3 border-b border-slate-700 space-y-3">
         <div className="flex items-center justify-between">
           <h1 className="text-lg font-semibold text-slate-100">Roster</h1>
-          <button
-            type="button"
-            onClick={onCollapse}
-            title="Hide roster"
-            className="w-8 h-8 grid place-items-center rounded text-slate-400 hover:bg-slate-700 hover:text-white"
-          >
-            <PanelRightClose size={18} />
-          </button>
+          <div className="flex items-center gap-1">
+            <button
+              type="button"
+              onClick={() => setImportOpen(true)}
+              title="Import names"
+              className="w-8 h-8 grid place-items-center rounded text-slate-400 hover:bg-slate-700 hover:text-white"
+            >
+              <ClipboardPaste size={18} />
+            </button>
+            <button
+              type="button"
+              onClick={onCollapse}
+              title="Hide roster"
+              className="w-8 h-8 grid place-items-center rounded text-slate-400 hover:bg-slate-700 hover:text-white"
+            >
+              <PanelRightClose size={18} />
+            </button>
+          </div>
         </div>
         <RosterTabs
           active={activeTab}
@@ -55,6 +67,13 @@ export function RosterBlade({ onCollapse }: Props) {
           />
         ))}
       </div>
+
+      {importOpen && (
+        <ImportNamesModal
+          mode={activeTab}
+          onClose={() => setImportOpen(false)}
+        />
+      )}
     </aside>
   )
 }

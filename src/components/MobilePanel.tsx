@@ -2,6 +2,7 @@ import { useDraggable } from '@dnd-kit/core'
 import {
   ArrowRight,
   Circle,
+  ClipboardPaste,
   Download,
   RotateCcw,
   Square,
@@ -12,6 +13,7 @@ import { useMemo, useState, type ReactNode } from 'react'
 import { useAppStore } from '../store/useAppStore'
 import type { AnnotationType, RosterMode } from '../types'
 import { AnnotationColorPicker } from './AnnotationColorPicker'
+import { ImportNamesModal } from './ImportNamesModal'
 import { RosterItem } from './RosterItem'
 import { SUB_CAP } from '../types'
 import { exportState, importState } from '../lib/serialize'
@@ -26,6 +28,7 @@ export function MobilePanel({ selectedAnnotationId }: Props) {
   const activeTab = useAppStore((s) => s.activeTab)
   const setActiveTab = useAppStore((s) => s.setActiveTab)
   const [mobileTab, setMobileTab] = useState<MobileTab>(activeTab)
+  const [importOpen, setImportOpen] = useState(false)
 
   const players = useAppStore((s) => s.players)
   const placements = useAppStore((s) => s.placements)
@@ -71,6 +74,13 @@ export function MobilePanel({ selectedAnnotationId }: Props) {
           <AnnotatePanel selectedAnnotationId={selectedAnnotationId} />
         ) : (
           <div className="p-2 space-y-1.5">
+            <button
+              type="button"
+              onClick={() => setImportOpen(true)}
+              className="w-full flex items-center justify-center gap-2 px-3 py-1.5 rounded border border-dashed border-slate-600 text-slate-400 hover:text-slate-200 hover:border-slate-500 text-sm"
+            >
+              <ClipboardPaste size={14} /> Import names
+            </button>
             {visible.map((p) => (
               <RosterItem
                 key={p.id}
@@ -81,6 +91,13 @@ export function MobilePanel({ selectedAnnotationId }: Props) {
           </div>
         )}
       </div>
+
+      {importOpen && mobileTab !== 'annotate' && (
+        <ImportNamesModal
+          mode={mobileTab}
+          onClose={() => setImportOpen(false)}
+        />
+      )}
     </div>
   )
 }
