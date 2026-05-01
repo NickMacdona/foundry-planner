@@ -8,6 +8,7 @@ import {
   type AnnotationType,
   type AppState,
   type IconType,
+  type Phase,
   type Placement,
   type Player,
   type RosterMode,
@@ -36,6 +37,14 @@ function seedAllPlayers(): Player[] {
   return [...seedJoinPlayers(), ...seedSubPlayers()]
 }
 
+function makePhase(name: string): Phase {
+  return { id: makeId('ph'), name, placements: [], annotations: [] }
+}
+
+function defaultPhases(): Phase[] {
+  return [{ id: 'ph-default', name: 'Phase 1', placements: [], annotations: [] }]
+}
+
 type Actions = {
   renamePlayer: (id: string, name: string) => void
   setIcon: (id: string, icon: IconType) => void
@@ -50,18 +59,41 @@ type Actions = {
   updateAnnotation: (id: string, patch: Partial<Annotation>) => void
   removeAnnotation: (id: string) => void
 
+  addPhase: () => void
+  removePhase: (id: string) => void
+  renamePhase: (id: string, name: string) => void
+  setActivePhase: (id: string) => void
+
   importPlayerNames: (mode: RosterMode, names: string[]) => void
   replaceState: (s: AppState) => void
   reset: () => void
 }
 
+function updateActivePhase(
+  phases: Phase[],
+  activePhaseId: string,
+  updater: (phase: Phase) => Phase,
+): Phase[] {
+  return phases.map((p) => (p.id === activePhaseId ? updater(p) : p))
+}
+
+function getActivePhase(state: AppState): Phase {
+  return state.phases.find((p) => p.id === state.activePhaseId) ?? state.phases[0]
+}
+
 const initialState: AppState = {
   players: seedAllPlayers(),
-  placements: [],
-  annotations: [],
+  phases: defaultPhases(),
+  activePhaseId: 'ph-default',
   activeTab: 'join',
   currentColor: DEFAULT_ANNOTATION_COLOR,
 }
+
+export const selectPlacements = (s: AppState): Placement[] =>
+  getActivePhase(s).placements
+
+export const selectAnnotations = (s: AppState): Annotation[] =>
+  getActivePhase(s).annotations
 
 export const useAppStore = create<AppState & Actions>()(
   persist(
@@ -87,31 +119,44 @@ export const useAppStore = create<AppState & Actions>()(
       setCurrentColor: (color) => set({ currentColor: color }),
 
       placePlayer: (playerId, x, y) => {
-        const existing = get().placements.find((p) => p.playerId === playerId)
-        if (existing) {
-          set({
-            placements: get().placements.map((p) =>
-              p.playerId === playerId ? { ...p, x, y } : p,
-            ),
-          })
-        } else {
-          set({ placements: [...get().placements, { playerId, x, y }] })
-        }
+        const { phases, activePhaseId } = get()
+        const phase = getActivePhase(get())
+        const existing = phase.placements.find((p) => p.playerId === playerId)
+        set({
+          phases: updateActivePhase(phases, activePhaseId, (ph) => ({
+            ...ph,
+            placements: existing
+              ? ph.placements.map((p) =>
+                  p.playerId === playerId ? { ...p, x, y } : p,
+                )
+              : [...ph.placements, { playerId, x, y }],
+          })),
+        })
       },
 
-      movePlacement: (playerId, x, y) =>
+      movePlacement: (playerId, x, y) => {
+        const { phases, activePhaseId } = get()
         set({
-          placements: get().placements.map((p) =>
-            p.playerId === playerId ? { ...p, x, y } : p,
-          ),
-        }),
+          phases: updateActivePhase(phases, activePhaseId, (ph) => ({
+            ...ph,
+            placements: ph.placements.map((p) =>
+              p.playerId === playerId ? { ...p, x, y } : p,
+            ),
+          })),
+        })
+      },
 
-      removePlacement: (playerId) =>
+      removePlacement: (playerId) => {
+        const { phases, activePhaseId } = get()
         set({
-          placements: get().placements.filter(
-            (p: Placement) => p.playerId !== playerId,
-          ),
-        }),
+          phases: updateActivePhase(phases, activePhaseId, (ph) => ({
+            ...ph,
+            placements: ph.placements.filter(
+              (p: Placement) => p.playerId !== playerId,
+            ),
+          })),
+        })
+      },
 
       addAnnotation: (type, x, y) => {
         const id = makeId('a')
@@ -132,19 +177,62 @@ export const useAppStore = create<AppState & Actions>()(
           text: d.text,
           color: get().currentColor,
         }
-        set({ annotations: [...get().annotations, ann] })
+        const { phases, activePhaseId } = get()
+        set({
+          phases: updateActivePhase(phases, activePhaseId, (ph) => ({
+            ...ph,
+            annotations: [...ph.annotations, ann],
+          })),
+        })
         return id
       },
 
-      updateAnnotation: (id, patch) =>
+      updateAnnotation: (id, patch) => {
+        const { phases, activePhaseId } = get()
         set({
-          annotations: get().annotations.map((a) =>
-            a.id === id ? { ...a, ...patch } : a,
+          phases: updateActivePhase(phases, activePhaseId, (ph) => ({
+            ...ph,
+            annotations: ph.annotations.map((a) =>
+              a.id === id ? { ...a, ...patch } : a,
+            ),
+          })),
+        })
+      },
+
+      removeAnnotation: (id) => {
+        const { phases, activePhaseId } = get()
+        set({
+          phases: updateActivePhase(phases, activePhaseId, (ph) => ({
+            ...ph,
+            annotations: ph.annotations.filter((a) => a.id !== id),
+          })),
+        })
+      },
+
+      addPhase: () => {
+        const { phases } = get()
+        const phase = makePhase(`Phase ${phases.length + 1}`)
+        set({ phases: [...phases, phase], activePhaseId: phase.id })
+      },
+
+      removePhase: (id) => {
+        const { phases, activePhaseId } = get()
+        if (phases.length <= 1) return
+        const next = phases.filter((p) => p.id !== id)
+        set({
+          phases: next,
+          activePhaseId: activePhaseId === id ? next[0].id : activePhaseId,
+        })
+      },
+
+      renamePhase: (id, name) =>
+        set({
+          phases: get().phases.map((p) =>
+            p.id === id ? { ...p, name } : p,
           ),
         }),
 
-      removeAnnotation: (id) =>
-        set({ annotations: get().annotations.filter((a) => a.id !== id) }),
+      setActivePhase: (id) => set({ activePhaseId: id }),
 
       importPlayerNames: (mode, names) => {
         const slots = get().players.filter((p) => p.mode === mode)
@@ -162,42 +250,45 @@ export const useAppStore = create<AppState & Actions>()(
       replaceState: (s) =>
         set({
           players: s.players,
-          placements: s.placements,
-          annotations: s.annotations,
+          phases: s.phases,
+          activePhaseId: s.activePhaseId,
           activeTab: s.activeTab,
           currentColor: s.currentColor ?? DEFAULT_ANNOTATION_COLOR,
         }),
 
-      reset: () => set({ ...initialState, players: seedAllPlayers() }),
+      reset: () => set({ ...initialState, players: seedAllPlayers(), phases: defaultPhases() }),
     }),
     {
       name: 'foundry-planner',
-      version: 2,
+      version: 3,
       partialize: (s) => ({
         players: s.players,
-        placements: s.placements,
-        annotations: s.annotations,
+        phases: s.phases,
+        activePhaseId: s.activePhaseId,
         activeTab: s.activeTab,
         currentColor: s.currentColor,
       }),
       migrate: (persisted, fromVersion) => {
-        // v1: only 30 join players; no dedicated sub placeholders.
-        // v2: 30 join + 20 sub placeholders (distinct IDs, mode is now fixed per slot).
-        const s = (persisted ?? {}) as Partial<AppState>
-        const existing = Array.isArray(s.players) ? s.players : []
+        const s = (persisted ?? {}) as Record<string, unknown>
+        const existing = Array.isArray(s.players) ? (s.players as Player[]) : []
+
         if (fromVersion < 2) {
-          // Keep any previously-saved players, but reset them to mode='join' so the
-          // old swap-based mode assignments don't leak into the new fixed-slot model.
-          // Then ensure 20 dedicated sub placeholders exist.
           const normalizedJoins = existing
             .filter((p) => p && typeof p.id === 'string')
             .map((p) => ({ ...p, mode: 'join' as RosterMode }))
           const joinIds = new Set(normalizedJoins.map((p) => p.id))
           const seededJoins = seedJoinPlayers().filter((p) => !joinIds.has(p.id))
+          const players = [...normalizedJoins, ...seededJoins, ...seedSubPlayers()]
+          const phase: Phase = {
+            id: 'ph-default',
+            name: 'Phase 1',
+            placements: Array.isArray(s.placements) ? (s.placements as Placement[]) : [],
+            annotations: Array.isArray(s.annotations) ? (s.annotations as Annotation[]) : [],
+          }
           return {
-            players: [...normalizedJoins, ...seededJoins, ...seedSubPlayers()],
-            placements: Array.isArray(s.placements) ? s.placements : [],
-            annotations: Array.isArray(s.annotations) ? s.annotations : [],
+            players,
+            phases: [phase],
+            activePhaseId: 'ph-default',
             activeTab: s.activeTab === 'sub' ? 'sub' : 'join',
             currentColor:
               typeof s.currentColor === 'string'
@@ -205,6 +296,26 @@ export const useAppStore = create<AppState & Actions>()(
                 : DEFAULT_ANNOTATION_COLOR,
           }
         }
+
+        if (fromVersion < 3) {
+          const phase: Phase = {
+            id: 'ph-default',
+            name: 'Phase 1',
+            placements: Array.isArray(s.placements) ? (s.placements as Placement[]) : [],
+            annotations: Array.isArray(s.annotations) ? (s.annotations as Annotation[]) : [],
+          }
+          return {
+            players: existing,
+            phases: [phase],
+            activePhaseId: 'ph-default',
+            activeTab: s.activeTab === 'sub' ? 'sub' : 'join',
+            currentColor:
+              typeof s.currentColor === 'string'
+                ? s.currentColor
+                : DEFAULT_ANNOTATION_COLOR,
+          }
+        }
+
         return persisted
       },
     },

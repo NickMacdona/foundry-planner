@@ -1,6 +1,6 @@
 import { Check } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import { useAppStore } from '../store/useAppStore'
+import { useAppStore, selectAnnotations } from '../store/useAppStore'
 import { ANNOTATION_COLORS, DEFAULT_ANNOTATION_COLOR } from '../types'
 
 type Props = {
@@ -10,9 +10,10 @@ type Props = {
 export function AnnotationColorPicker({ selectedId }: Props) {
   const currentColor = useAppStore((s) => s.currentColor)
   const setCurrentColor = useAppStore((s) => s.setCurrentColor)
-  const selectedAnnotation = useAppStore((s) =>
-    selectedId ? s.annotations.find((a) => a.id === selectedId) ?? null : null,
-  )
+  const selectedAnnotation = useAppStore((s) => {
+    if (!selectedId) return null
+    return selectAnnotations(s).find((a) => a.id === selectedId) ?? null
+  })
   const updateAnnotation = useAppStore((s) => s.updateAnnotation)
 
   const active =

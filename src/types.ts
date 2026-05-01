@@ -41,10 +41,17 @@ export const ANNOTATION_COLORS: string[] = [
 
 export const DEFAULT_ANNOTATION_COLOR = ANNOTATION_COLORS[0]
 
-export type AppState = {
-  players: Player[]
+export type Phase = {
+  id: string
+  name: string
   placements: Placement[]
   annotations: Annotation[]
+}
+
+export type AppState = {
+  players: Player[]
+  phases: Phase[]
+  activePhaseId: string
   activeTab: RosterMode
   currentColor: string
 }

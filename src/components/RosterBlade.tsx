@@ -1,6 +1,6 @@
 import { ClipboardPaste, PanelRightClose } from 'lucide-react'
 import { useMemo, useState } from 'react'
-import { useAppStore } from '../store/useAppStore'
+import { useAppStore, selectPlacements } from '../store/useAppStore'
 import { ImportNamesModal } from './ImportNamesModal'
 import { RosterItem } from './RosterItem'
 import { RosterTabs } from './RosterTabs'
@@ -11,7 +11,7 @@ type Props = {
 
 export function RosterBlade({ onCollapse }: Props) {
   const players = useAppStore((s) => s.players)
-  const placements = useAppStore((s) => s.placements)
+  const placements = useAppStore(selectPlacements)
   const activeTab = useAppStore((s) => s.activeTab)
   const setActiveTab = useAppStore((s) => s.setActiveTab)
   const [importOpen, setImportOpen] = useState(false)

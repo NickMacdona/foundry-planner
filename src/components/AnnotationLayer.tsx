@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { useAppStore } from '../store/useAppStore'
+import { useAppStore, selectAnnotations } from '../store/useAppStore'
 import { AnnotationItem } from './AnnotationItem'
 import { MAP_HEIGHT, MAP_WIDTH } from '../types'
 
@@ -9,7 +9,7 @@ type Props = {
 }
 
 export function AnnotationLayer({ selectedId, onSelect }: Props) {
-  const annotations = useAppStore((s) => s.annotations)
+  const annotations = useAppStore(selectAnnotations)
   const removeAnnotation = useAppStore((s) => s.removeAnnotation)
 
   useEffect(() => {

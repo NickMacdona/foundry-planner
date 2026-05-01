@@ -15,8 +15,8 @@ export function ExportImportBar() {
     setText(
       exportState({
         players: state.players,
-        placements: state.placements,
-        annotations: state.annotations,
+        phases: state.phases,
+        activePhaseId: state.activePhaseId,
         activeTab: state.activeTab,
         currentColor: state.currentColor,
       }),

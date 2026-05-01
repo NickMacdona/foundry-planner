@@ -10,7 +10,7 @@ import {
   Upload,
 } from 'lucide-react'
 import { useMemo, useState, type ReactNode } from 'react'
-import { useAppStore } from '../store/useAppStore'
+import { useAppStore, selectPlacements } from '../store/useAppStore'
 import type { AnnotationType, RosterMode } from '../types'
 import { AnnotationColorPicker } from './AnnotationColorPicker'
 import { ImportNamesModal } from './ImportNamesModal'
@@ -31,7 +31,7 @@ export function MobilePanel({ selectedAnnotationId }: Props) {
   const [importOpen, setImportOpen] = useState(false)
 
   const players = useAppStore((s) => s.players)
-  const placements = useAppStore((s) => s.placements)
+  const placements = useAppStore(selectPlacements)
   const placedIds = useMemo(
     () => new Set(placements.map((p) => p.playerId)),
     [placements],
@@ -193,8 +193,8 @@ function ExportImportRow() {
     setText(
       exportState({
         players: state.players,
-        placements: state.placements,
-        annotations: state.annotations,
+        phases: state.phases,
+        activePhaseId: state.activePhaseId,
         activeTab: state.activeTab,
         currentColor: state.currentColor,
       }),

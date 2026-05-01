@@ -31,8 +31,8 @@ function isAppState(v: unknown): v is AppState {
   const s = v as Record<string, unknown>
   return (
     Array.isArray(s.players) &&
-    Array.isArray(s.placements) &&
-    Array.isArray(s.annotations) &&
+    Array.isArray(s.phases) &&
+    typeof s.activePhaseId === 'string' &&
     (s.activeTab === 'join' || s.activeTab === 'sub')
   )
 }

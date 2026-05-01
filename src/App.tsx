@@ -14,10 +14,11 @@ import { BottomToolbar } from './components/BottomToolbar'
 import { DragPreview, type ActiveDrag } from './components/DragPreview'
 import { MapSurface, type MapSurfaceHandle } from './components/MapSurface'
 import { MobilePanel } from './components/MobilePanel'
+import { PhaseBar } from './components/PhaseBar'
 import { RosterBlade } from './components/RosterBlade'
 import { clampToMap, snap, screenToMap } from './lib/grid'
 import { useIsMobile } from './lib/useIsMobile'
-import { useAppStore } from './store/useAppStore'
+import { useAppStore, selectPlacements } from './store/useAppStore'
 import type { AnnotationType } from './types'
 
 export default function App() {
@@ -82,9 +83,8 @@ export default function App() {
         const snapped = clampToMap(snap(map.x), snap(map.y))
         placePlayer(data.playerId, snapped.x, snapped.y)
       } else if (data.kind === 'placed') {
-        const existing = useAppStore
-          .getState()
-          .placements.find((p) => p.playerId === data.playerId)
+        const existing = selectPlacements(useAppStore.getState())
+          .find((p) => p.playerId === data.playerId)
         if (!existing) return
         const nx = existing.x + delta.x / transform.scale
         const ny = existing.y + delta.y / transform.scale
@@ -108,59 +108,65 @@ export default function App() {
       onDragCancel={onDragCancel}
     >
       {isMobile ? (
-        <div
-          className="h-full w-full grid"
-          style={{
-            gridTemplateColumns: '1fr',
-            gridTemplateRows: '1fr 33vh',
-            gridTemplateAreas: '"map" "panel"',
-          }}
-        >
-          <div style={{ gridArea: 'map' }} className="min-h-0 min-w-0 relative">
-            <MapSurface
-              ref={mapRef}
-              selectedAnnotationId={selectedAnnotationId}
-              onSelectAnnotation={setSelectedAnnotationId}
-            />
-          </div>
-          <div style={{ gridArea: 'panel' }} className="min-h-0 min-w-0">
-            <MobilePanel selectedAnnotationId={selectedAnnotationId} />
+        <div className="h-full w-full flex flex-col">
+          <PhaseBar />
+          <div
+            className="flex-1 min-h-0 grid"
+            style={{
+              gridTemplateColumns: '1fr',
+              gridTemplateRows: '1fr 33vh',
+              gridTemplateAreas: '"map" "panel"',
+            }}
+          >
+            <div style={{ gridArea: 'map' }} className="min-h-0 min-w-0 relative">
+              <MapSurface
+                ref={mapRef}
+                selectedAnnotationId={selectedAnnotationId}
+                onSelectAnnotation={setSelectedAnnotationId}
+              />
+            </div>
+            <div style={{ gridArea: 'panel' }} className="min-h-0 min-w-0">
+              <MobilePanel selectedAnnotationId={selectedAnnotationId} />
+            </div>
           </div>
         </div>
       ) : (
-        <div
-          className="h-full w-full grid transition-[grid-template-columns] duration-200"
-          style={{
-            gridTemplateColumns: bladeOpen ? '1fr 340px' : '1fr 0px',
-            gridTemplateRows: '1fr 72px',
-            gridTemplateAreas: '"map blade" "bottom blade"',
-          }}
-        >
-          <div style={{ gridArea: 'map' }} className="min-h-0 min-w-0 relative">
-            <MapSurface
-              ref={mapRef}
-              selectedAnnotationId={selectedAnnotationId}
-              onSelectAnnotation={setSelectedAnnotationId}
-            />
-            {!bladeOpen && (
-              <button
-                type="button"
-                onClick={() => setBladeOpen(true)}
-                title="Show roster"
-                className="absolute top-3 right-3 z-30 w-10 h-10 grid place-items-center rounded-lg bg-slate-900/90 border border-slate-700 text-slate-100 shadow-lg hover:bg-slate-800"
-              >
-                <PanelRightOpen size={18} />
-              </button>
-            )}
-          </div>
-          <div style={{ gridArea: 'bottom' }} className="min-h-0 min-w-0">
-            <BottomToolbar selectedAnnotationId={selectedAnnotationId} />
-          </div>
+        <div className="h-full w-full flex flex-col">
+          <PhaseBar />
           <div
-            style={{ gridArea: 'blade' }}
-            className="min-h-0 min-w-0 overflow-hidden"
+            className="flex-1 min-h-0 grid transition-[grid-template-columns] duration-200"
+            style={{
+              gridTemplateColumns: bladeOpen ? '1fr 340px' : '1fr 0px',
+              gridTemplateRows: '1fr 72px',
+              gridTemplateAreas: '"map blade" "bottom blade"',
+            }}
           >
-            <RosterBlade onCollapse={() => setBladeOpen(false)} />
+            <div style={{ gridArea: 'map' }} className="min-h-0 min-w-0 relative">
+              <MapSurface
+                ref={mapRef}
+                selectedAnnotationId={selectedAnnotationId}
+                onSelectAnnotation={setSelectedAnnotationId}
+              />
+              {!bladeOpen && (
+                <button
+                  type="button"
+                  onClick={() => setBladeOpen(true)}
+                  title="Show roster"
+                  className="absolute top-3 right-3 z-30 w-10 h-10 grid place-items-center rounded-lg bg-slate-900/90 border border-slate-700 text-slate-100 shadow-lg hover:bg-slate-800"
+                >
+                  <PanelRightOpen size={18} />
+                </button>
+              )}
+            </div>
+            <div style={{ gridArea: 'bottom' }} className="min-h-0 min-w-0">
+              <BottomToolbar selectedAnnotationId={selectedAnnotationId} />
+            </div>
+            <div
+              style={{ gridArea: 'blade' }}
+              className="min-h-0 min-w-0 overflow-hidden"
+            >
+              <RosterBlade onCollapse={() => setBladeOpen(false)} />
+            </div>
           </div>
         </div>
       )}

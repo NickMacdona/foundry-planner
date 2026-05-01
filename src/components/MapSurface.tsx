@@ -6,7 +6,7 @@ import {
   type ReactZoomPanPinchRef,
 } from 'react-zoom-pan-pinch'
 import { MAP_HEIGHT, MAP_WIDTH } from '../types'
-import { useAppStore } from '../store/useAppStore'
+import { useAppStore, selectPlacements } from '../store/useAppStore'
 import { MapGrid } from './MapGrid'
 import { PlacedIcon } from './PlacedIcon'
 import { AnnotationLayer } from './AnnotationLayer'
@@ -28,7 +28,7 @@ export const MapSurface = forwardRef<MapSurfaceHandle, MapSurfaceProps>(
   const rzppRef = useRef<ReactZoomPanPinchRef>(null)
 
   const players = useAppStore((s) => s.players)
-  const placements = useAppStore((s) => s.placements)
+  const placements = useAppStore(selectPlacements)
   const playersById = new Map(players.map((p) => [p.id, p]))
 
   const { setNodeRef: setDropRef, isOver } = useDroppable({ id: 'map' })
@@ -73,7 +73,7 @@ export const MapSurface = forwardRef<MapSurfaceHandle, MapSurfaceProps>(
           limitToBounds={false}
           smooth={false}
           doubleClick={{ disabled: true }}
-          wheel={{ step: 0.1 }}
+          wheel={{ step: 0.04 }}
           panning={{
             excluded: ['dnd-handle', 'annotation-hit'],
             velocityDisabled: true,
