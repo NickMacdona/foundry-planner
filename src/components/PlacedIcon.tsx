@@ -1,5 +1,6 @@
 import { useDraggable } from '@dnd-kit/core'
 import { X } from 'lucide-react'
+import { useState } from 'react'
 import type { Player } from '../types'
 import { useAppStore } from '../store/useAppStore'
 import { IconGlyph } from './IconPicker'
@@ -12,6 +13,7 @@ type Props = {
 
 export function PlacedIcon({ player, x, y }: Props) {
   const removePlacement = useAppStore((s) => s.removePlacement)
+  const [tapped, setTapped] = useState(false)
 
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: `placed-${player.id}`,
@@ -21,13 +23,17 @@ export function PlacedIcon({ player, x, y }: Props) {
   return (
     <div
       ref={setNodeRef}
-      className="dnd-handle absolute flex flex-col items-center select-none"
+      className="dnd-handle group absolute flex flex-col items-center select-none"
       style={{
         left: x,
         top: y,
         transform: 'translate(-50%, -50%)',
         zIndex: isDragging ? 20 : 10,
         opacity: isDragging ? 0.3 : 1,
+      }}
+      onClick={() => setTapped((v) => !v)}
+      onBlur={(e) => {
+        if (!e.currentTarget.contains(e.relatedTarget)) setTapped(false)
       }}
     >
       <div
@@ -43,7 +49,10 @@ export function PlacedIcon({ player, x, y }: Props) {
             e.stopPropagation()
             removePlacement(player.id)
           }}
-          className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-red-600 hover:bg-red-500 text-white grid place-items-center shadow"
+          className={
+            'absolute -top-2 -right-2 w-5 h-5 rounded-full bg-red-600 hover:bg-red-500 text-white grid place-items-center shadow transition-opacity ' +
+            (tapped ? 'opacity-100' : 'opacity-0 group-hover:opacity-100')
+          }
           title="Remove from map"
         >
           <X size={12} />
