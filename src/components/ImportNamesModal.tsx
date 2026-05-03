@@ -9,7 +9,7 @@ type Props = {
 
 function parseNames(raw: string): string[] {
   return raw
-    .split(',')
+    .split(/,\n|\n,|,|\n/)
     .map((n) => n.trim())
     .filter(Boolean)
 }
@@ -43,7 +43,7 @@ export function ImportNamesModal({ mode, onClose }: Props) {
           Import {label} names
         </h2>
         <p className="text-slate-400 text-sm">
-          Paste a comma-separated list of names. {slotCount} slots available.
+          Paste names separated by commas or new lines. {slotCount} slots available.
         </p>
         <textarea
           value={text}
