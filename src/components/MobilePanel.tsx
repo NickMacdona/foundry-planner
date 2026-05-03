@@ -196,18 +196,17 @@ function ExportImportRow() {
   const [text, setText] = useState('')
   const [error, setError] = useState<string | null>(null)
 
-  const openExport = () => {
+  const openExport = async () => {
     const state = useAppStore.getState()
-    setText(
-      exportState({
-        players: state.players,
-        phases: state.phases,
-        activePhaseId: state.activePhaseId,
-        activeTab: state.activeTab,
-        currentColor: state.currentColor,
-        labelSize: state.labelSize,
-      }),
-    )
+    const encoded = await exportState({
+      players: state.players,
+      phases: state.phases,
+      activePhaseId: state.activePhaseId,
+      activeTab: state.activeTab,
+      currentColor: state.currentColor,
+      labelSize: state.labelSize,
+    })
+    setText(encoded)
     setError(null)
     setMode('export')
   }
@@ -218,9 +217,9 @@ function ExportImportRow() {
     setMode('import')
   }
 
-  const doImport = () => {
+  const doImport = async () => {
     try {
-      useAppStore.getState().replaceState(importState(text))
+      useAppStore.getState().replaceState(await importState(text))
       setMode(null)
     } catch (e) {
       setError((e as Error).message)

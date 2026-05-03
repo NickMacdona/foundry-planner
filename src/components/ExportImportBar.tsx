@@ -10,18 +10,17 @@ export function ExportImportBar() {
   const [text, setText] = useState('')
   const [error, setError] = useState<string | null>(null)
 
-  const openExport = () => {
+  const openExport = async () => {
     const state = useAppStore.getState()
-    setText(
-      exportState({
-        players: state.players,
-        phases: state.phases,
-        activePhaseId: state.activePhaseId,
-        activeTab: state.activeTab,
-        currentColor: state.currentColor,
-        labelSize: state.labelSize,
-      }),
-    )
+    const encoded = await exportState({
+      players: state.players,
+      phases: state.phases,
+      activePhaseId: state.activePhaseId,
+      activeTab: state.activeTab,
+      currentColor: state.currentColor,
+      labelSize: state.labelSize,
+    })
+    setText(encoded)
     setError(null)
     setMode('export')
   }
@@ -32,9 +31,9 @@ export function ExportImportBar() {
     setMode('import')
   }
 
-  const doImport = () => {
+  const doImport = async () => {
     try {
-      const parsed = importState(text)
+      const parsed = await importState(text)
       useAppStore.getState().replaceState(parsed)
       setMode(null)
     } catch (e) {
