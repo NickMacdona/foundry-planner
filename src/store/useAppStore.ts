@@ -211,7 +211,11 @@ export const useAppStore = create<AppState & Actions>()(
 
       addPhase: () => {
         const { phases } = get()
-        const phase = makePhase(`Phase ${phases.length + 1}`)
+        const current = getActivePhase(get())
+        const phase: Phase = {
+          ...makePhase(`Phase ${phases.length + 1}`),
+          placements: current.placements.map((p) => ({ ...p })),
+        }
         set({ phases: [...phases, phase], activePhaseId: phase.id })
       },
 
