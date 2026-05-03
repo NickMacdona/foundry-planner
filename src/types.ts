@@ -54,6 +54,7 @@ export type AppState = {
   activePhaseId: string
   activeTab: RosterMode
   currentColor: string
+  labelSize: number
 }
 
 export const SUB_CAP = 20

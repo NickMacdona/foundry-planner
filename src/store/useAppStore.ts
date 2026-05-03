@@ -63,6 +63,7 @@ type Actions = {
   removePhase: (id: string) => void
   renamePhase: (id: string, name: string) => void
   setActivePhase: (id: string) => void
+  setLabelSize: (size: number) => void
 
   importPlayerNames: (mode: RosterMode, names: string[]) => void
   replaceState: (s: AppState) => void
@@ -87,6 +88,7 @@ const initialState: AppState = {
   activePhaseId: 'ph-default',
   activeTab: 'join',
   currentColor: DEFAULT_ANNOTATION_COLOR,
+  labelSize: 12,
 }
 
 export const selectPlacements = (s: AppState): Placement[] =>
@@ -237,6 +239,7 @@ export const useAppStore = create<AppState & Actions>()(
         }),
 
       setActivePhase: (id) => set({ activePhaseId: id }),
+      setLabelSize: (size) => set({ labelSize: size }),
 
       importPlayerNames: (mode, names) => {
         const slots = get().players.filter((p) => p.mode === mode)
@@ -258,6 +261,7 @@ export const useAppStore = create<AppState & Actions>()(
           activePhaseId: s.activePhaseId,
           activeTab: s.activeTab,
           currentColor: s.currentColor ?? DEFAULT_ANNOTATION_COLOR,
+          labelSize: s.labelSize ?? 12,
         }),
 
       reset: () => set({ ...initialState, players: seedAllPlayers(), phases: defaultPhases() }),
@@ -271,6 +275,7 @@ export const useAppStore = create<AppState & Actions>()(
         activePhaseId: s.activePhaseId,
         activeTab: s.activeTab,
         currentColor: s.currentColor,
+        labelSize: s.labelSize,
       }),
       migrate: (persisted, fromVersion) => {
         const s = (persisted ?? {}) as Record<string, unknown>

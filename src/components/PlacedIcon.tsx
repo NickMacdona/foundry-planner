@@ -13,6 +13,7 @@ type Props = {
 
 export function PlacedIcon({ player, x, y }: Props) {
   const removePlacement = useAppStore((s) => s.removePlacement)
+  const labelSize = useAppStore((s) => s.labelSize)
   const [tapped, setTapped] = useState(false)
 
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
@@ -58,7 +59,10 @@ export function PlacedIcon({ player, x, y }: Props) {
           <X size={12} />
         </button>
       </div>
-      <div className="mt-1 px-2 py-0.5 rounded bg-slate-900/90 text-slate-100 text-xs border border-slate-700 whitespace-nowrap max-w-[160px] truncate">
+      <div
+        className="mt-1 px-2 py-0.5 rounded bg-slate-900/90 text-slate-100 border border-slate-700 whitespace-nowrap max-w-[160px] truncate"
+        style={{ fontSize: labelSize }}
+      >
         {player.name}
       </div>
     </div>

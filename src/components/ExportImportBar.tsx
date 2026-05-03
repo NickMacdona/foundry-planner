@@ -19,6 +19,7 @@ export function ExportImportBar() {
         activePhaseId: state.activePhaseId,
         activeTab: state.activeTab,
         currentColor: state.currentColor,
+        labelSize: state.labelSize,
       }),
     )
     setError(null)

@@ -4,12 +4,17 @@ import type { AnnotationType } from '../types'
 import type { ReactNode } from 'react'
 import { AnnotationColorPicker } from './AnnotationColorPicker'
 import { ExportImportBar } from './ExportImportBar'
+import { LabelSizeSlider } from './LabelSizeSlider'
+import { useAppStore } from '../store/useAppStore'
 
 type Props = {
   selectedAnnotationId: string | null
 }
 
 export function BottomToolbar({ selectedAnnotationId }: Props) {
+  const labelSize = useAppStore((s) => s.labelSize)
+  const setLabelSize = useAppStore((s) => s.setLabelSize)
+
   return (
     <div className="h-full border-t border-slate-700 bg-slate-900/80 flex items-center gap-3 px-4">
       <span className="text-sm text-slate-400 pr-2 border-r border-slate-700">
@@ -22,6 +27,10 @@ export function BottomToolbar({ selectedAnnotationId }: Props) {
 
       <div className="ml-4 pl-4 border-l border-slate-700">
         <AnnotationColorPicker selectedId={selectedAnnotationId} />
+      </div>
+
+      <div className="ml-4 pl-4 border-l border-slate-700">
+        <LabelSizeSlider value={labelSize} onChange={setLabelSize} />
       </div>
 
       <div className="ml-auto pl-4 border-l border-slate-700">

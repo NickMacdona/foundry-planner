@@ -14,6 +14,7 @@ import { useAppStore, selectPlacements } from '../store/useAppStore'
 import type { AnnotationType, RosterMode } from '../types'
 import { AnnotationColorPicker } from './AnnotationColorPicker'
 import { ImportNamesModal } from './ImportNamesModal'
+import { LabelSizeSlider } from './LabelSizeSlider'
 import { RosterItem } from './RosterItem'
 import { SUB_CAP } from '../types'
 import { exportState, importState } from '../lib/serialize'
@@ -135,6 +136,9 @@ function AnnotatePanel({
 }: {
   selectedAnnotationId: string | null
 }) {
+  const labelSize = useAppStore((s) => s.labelSize)
+  const setLabelSize = useAppStore((s) => s.setLabelSize)
+
   return (
     <div className="p-3 space-y-3">
       <div className="grid grid-cols-4 gap-2">
@@ -146,6 +150,10 @@ function AnnotatePanel({
 
       <div className="flex flex-wrap items-center gap-2 border border-slate-700 rounded-lg p-2 bg-slate-900/60">
         <AnnotationColorPicker selectedId={selectedAnnotationId} />
+      </div>
+
+      <div className="border border-slate-700 rounded-lg p-2 bg-slate-900/60">
+        <LabelSizeSlider value={labelSize} onChange={setLabelSize} />
       </div>
 
       <ExportImportRow />
@@ -197,6 +205,7 @@ function ExportImportRow() {
         activePhaseId: state.activePhaseId,
         activeTab: state.activeTab,
         currentColor: state.currentColor,
+        labelSize: state.labelSize,
       }),
     )
     setError(null)
