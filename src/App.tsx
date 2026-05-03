@@ -9,7 +9,7 @@ import {
 } from '@dnd-kit/core'
 import { snapCenterToCursor } from '@dnd-kit/modifiers'
 import { PanelRightOpen } from 'lucide-react'
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { BottomToolbar } from './components/BottomToolbar'
 import { DragPreview, type ActiveDrag } from './components/DragPreview'
 import { MapSurface, type MapSurfaceHandle } from './components/MapSurface'
@@ -36,6 +36,20 @@ export default function App() {
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
   )
 
+  const pointerRef = useRef({ x: 0, y: 0 })
+
+  useEffect(() => {
+    const track = (e: PointerEvent) => {
+      pointerRef.current = { x: e.clientX, y: e.clientY }
+    }
+    document.addEventListener('pointermove', track)
+    document.addEventListener('pointerup', track)
+    return () => {
+      document.removeEventListener('pointermove', track)
+      document.removeEventListener('pointerup', track)
+    }
+  }, [])
+
   const placePlayer = useAppStore((s) => s.placePlayer)
   const movePlacement = useAppStore((s) => s.movePlacement)
   const addAnnotation = useAppStore((s) => s.addAnnotation)
@@ -48,7 +62,7 @@ export default function App() {
   const onDragEnd = useCallback(
     (event: DragEndEvent) => {
       setActiveDrag(null)
-      const { active, delta, activatorEvent } = event
+      const { active, delta } = event
       const data = active.data.current as
         | { kind: 'roster'; playerId: string }
         | { kind: 'placed'; playerId: string }
@@ -60,24 +74,8 @@ export default function App() {
       const transform = mapRef.current?.getTransform()
       if (!rect || !transform) return
 
-      const pointerEvent = activatorEvent as PointerEvent | MouseEvent
-      const startX =
-        'clientX' in pointerEvent ? pointerEvent.clientX : rect.left + rect.width / 2
-      const startY =
-        'clientY' in pointerEvent ? pointerEvent.clientY : rect.top + rect.height / 2
-      const endX = startX + delta.x
-      const endY = startY + delta.y
-
-      if (
-        endX < rect.left ||
-        endX > rect.right ||
-        endY < rect.top ||
-        endY > rect.bottom
-      ) {
-        return
-      }
-
-      const map = screenToMap({ x: endX, y: endY }, rect, transform)
+      const ptr = pointerRef.current
+      const map = screenToMap(ptr, rect, transform)
 
       if (data.kind === 'roster') {
         const snapped = clampToMap(snap(map.x), snap(map.y))
@@ -123,6 +121,7 @@ export default function App() {
                 ref={mapRef}
                 selectedAnnotationId={selectedAnnotationId}
                 onSelectAnnotation={setSelectedAnnotationId}
+                isDraggingNew={activeDrag?.kind === 'roster' || activeDrag?.kind === 'new-annotation'}
               />
             </div>
             <div style={{ gridArea: 'panel' }} className="min-h-0 min-w-0">
@@ -146,6 +145,7 @@ export default function App() {
                 ref={mapRef}
                 selectedAnnotationId={selectedAnnotationId}
                 onSelectAnnotation={setSelectedAnnotationId}
+                isDraggingNew={activeDrag?.kind === 'roster' || activeDrag?.kind === 'new-annotation'}
               />
               {!bladeOpen && (
                 <button

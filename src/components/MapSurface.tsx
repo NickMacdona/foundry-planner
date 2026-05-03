@@ -20,10 +20,11 @@ export type MapSurfaceHandle = {
 type MapSurfaceProps = {
   selectedAnnotationId: string | null
   onSelectAnnotation: (id: string | null) => void
+  isDraggingNew?: boolean
 }
 
 export const MapSurface = forwardRef<MapSurfaceHandle, MapSurfaceProps>(
-  function MapSurface({ selectedAnnotationId, onSelectAnnotation }, ref) {
+  function MapSurface({ selectedAnnotationId, onSelectAnnotation, isDraggingNew }, ref) {
   const wrapperRef = useRef<HTMLDivElement>(null)
   const rzppRef = useRef<ReactZoomPanPinchRef>(null)
 
@@ -85,7 +86,11 @@ export const MapSurface = forwardRef<MapSurfaceHandle, MapSurfaceProps>(
           >
             <div
               className="relative"
-              style={{ width: MAP_WIDTH, height: MAP_HEIGHT }}
+              style={{
+                width: MAP_WIDTH,
+                height: MAP_HEIGHT,
+                pointerEvents: isDraggingNew ? 'none' : undefined,
+              }}
             >
               <MapGrid />
               <AnnotationLayer
