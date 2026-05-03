@@ -35,7 +35,7 @@ export function PhaseBar() {
   }
 
   return (
-    <div className="flex items-stretch bg-slate-950 border-b border-slate-700 overflow-x-auto">
+    <div className="flex items-stretch bg-slate-950 border-b border-slate-700 overflow-x-auto shrink-0">
       {phases.map((phase) => {
         const isActive = phase.id === activePhaseId
         const isEditing = editingId === phase.id
